@@ -3,25 +3,28 @@ import Header from "./Header";
 import ListItems from "./ListItems";
 import InputModal from "./InputModal";
 
-const Home = () => {
-  // initial todos
-  const initialTodos = [
-    { title: "jog", date: "Fri, 08 Jan 2021 16:32:00 GMT", key: "1" },
-    { title: "code", date: "Fri, 08 Jan 2021 17:32:00 GMT", key: "2" },
-  ];
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-  const [todos, setTodos] = useState(initialTodos);
+const Home = ({ todos, setTodos }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [todoInputValue, setTodoInputValue] = useState("");
   const [todoToBeEdited, setTodoToBeEdited] = useState(null);
 
   const handleClearTodos = () => {
-    setTodos([]);
+    AsyncStorage.setItem("storedTodos", JSON.stringify([]))
+      .then(() => {
+        setTodos([]);
+      })
+      .catch((error) => console.log(error));
   };
 
   const handleAddTodo = (todo) => {
-    setTodos([...todos, todo]);
-    setModalVisible(false);
+    AsyncStorage.setItem("storedTodos", JSON.stringify([...todos, todo]))
+      .then(() => {
+        setTodos([...todos, todo]);
+        setModalVisible(false);
+      })
+      .catch((error) => console.log(error));
   };
 
   const handleTriggerEdit = (item) => {
@@ -31,11 +34,17 @@ const Home = () => {
   };
 
   const handleEditTodo = (editedTodo) => {
-    setTodos(
-      todos?.map((item) => (item?.key === editedTodo?.key ? editedTodo : item))
+    const updatedTodos = todos?.map((item) =>
+      item?.key === editedTodo?.key ? editedTodo : item
     );
-    setTodoToBeEdited(null);
-    setModalVisible(false);
+
+    AsyncStorage.setItem("storedTodos", JSON.stringify(updatedTodos))
+      .then(() => {
+        setTodos([...updatedTodos]);
+        setModalVisible(false);
+        setTodoToBeEdited(null);
+      })
+      .catch((error) => console.log(error));
   };
 
   return (

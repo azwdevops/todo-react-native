@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SwipeListView } from "react-native-swipe-list-view";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   HiddenButton,
@@ -16,7 +17,12 @@ const ListItems = ({ todos, setTodos, handleTriggerEdit }) => {
   const [swipedRow, setSwipedRow] = useState(null);
 
   const handleDeleteTodo = (rowMap, rowKey) => {
-    setTodos(todos?.filter((item) => item.key !== rowKey));
+    const updatedTodos = todos?.filter((item) => item.key !== rowKey);
+    AsyncStorage.setItem("storedTodos", JSON.stringify(updatedTodos))
+      .then(() => {
+        setTodos(updatedTodos);
+      })
+      .catch((error) => console.log(error));
   };
 
   return (
